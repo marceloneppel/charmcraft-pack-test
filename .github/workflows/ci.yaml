@@ -23,23 +23,13 @@ jobs:
         run: python -m pip install tox
       - name: Run tests
         run: tox -e unit
-  integration-test-microk8s:
-    name: Integration tests (microk8s)
+  charmcraft-pack-test:
+    name: Charmcraft pack test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
-        with:
-          provider: microk8s
-      - name: Run integration tests
-        # set a predictable model name so it can be consumed by charm-logdump-action
-        run: tox -e integration -- --model testing
-      - name: Dump logs
-        uses: canonical/charm-logdump-action@main
-        if: failure()
-        with:
-          # TEMPLATE-TODO: Replace the application name
-          app: operator-template
-          model: testing
+      - name: Install charmcraft
+        run: /usr/bin/sudo snap install charmcraft --classic --channel latest/stable
+      - name: Run charmcraft
+        run: /usr/bin/sudo charmcraft pack --destructive-mode --quiet
